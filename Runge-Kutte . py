@@ -1,0 +1,50 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Constants
+theta_initial = 3
+dt = 0.01
+transient = 5000
+total_iterations = 10000
+
+# Arrays to store data
+thetalist, omegalist, timelist = [], [], []
+
+# Initial values
+theta, omega, t = theta_initial, 0, 0
+
+# Define the function for angular acceleration
+def f(theta, omega, t):
+    k, phi, A = 0.5, 0.66667, 1.07
+    g, L = 1, 1
+    return - (g/L) * np.sin(theta) - k * omega + A * np.cos(phi * t)
+
+# Run the simulation
+for iteration_number in range(total_iterations):
+    # Store data
+    thetalist.append(theta)
+    omegalist.append(omega)
+    timelist.append(t)
+
+    # Runge-Kutta integration
+    k1a = dt * omega
+    k1b = dt * f(theta, omega, t)
+    k2a = dt * (omega + k1b / 2)
+    k2b = dt * f(theta + k1a / 2, omega + k1b / 2, t + dt / 2)
+    k3a = dt * (omega + k2b / 2)
+    k3b = dt * f(theta + k2a / 2, omega + k2b / 2, t + dt / 2)
+    k4a = dt * (omega + k3b)
+    k4b = dt * f(theta + k3a, omega + k3b, t + dt)
+    
+    # Update theta and omega using Runge-Kutta
+    theta += (k1a + 2 * k2a + 2 * k3a + k4a) / 6
+    omega += (k1b + 2 * k2b + 2 * k3b + k4b) / 6
+    t += dt
+
+# Plot theta vs omega
+plt.figure()
+plt.plot(omegalist, thetalist)
+plt.title("Theta Vs Omega")
+plt.xlabel("Omega")
+plt.ylabel("Theta")
+plt.show()
